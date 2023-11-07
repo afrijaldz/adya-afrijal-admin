@@ -43,7 +43,7 @@ const addUser = async () => {
 }
 const { ready: valueValid, start } = useTimeout(1000, { controls: true })
 
-const edit = (ok) => {
+const edit = (ok: any) => {
   name.value = ok.name
   invitee.value = ok
   ;(document.getElementById('my_modal_2') as any).showModal()
@@ -83,7 +83,7 @@ const hapusUser = async () => {
   }
 }
 
-const hapus = (ok) => {
+const hapus = (ok: any) => {
   invitee.value = ok
   ;(document.getElementById('modal_hapus') as any).showModal()
 }
