@@ -17,7 +17,7 @@ onMounted(() => {
 })
 
 const getList = async () => {
-  const { data } = await useFetch('http://103.59.95.40:3333/')
+  const { data } = await useFetch('https://jlab.my.id/')
 
   if (data.value) {
     const invitees = JSON.parse(data.value as string)
@@ -27,7 +27,7 @@ const getList = async () => {
 
 const addUser = async () => {
   if (name.value) {
-    const { data } = await useFetch('http://103.59.95.40:3333')
+    const { data } = await useFetch('https://jlab.my.id')
       .post({
         name: name.value
       })
@@ -51,7 +51,7 @@ const edit = (ok: any) => {
 
 const editUser = async () => {
   if (name.value) {
-    const { data } = await useFetch('http://103.59.95.40:3333/' + invitee.value?.id)
+    const { data } = await useFetch('https://jlab.my.id/' + invitee.value?.id)
       .put({
         name: name.value
       })
@@ -71,7 +71,7 @@ const editUser = async () => {
 const hapusUser = async () => {
   console.log('hapu')
   if (invitee.value?.id) {
-    const { data } = await useFetch('http://103.59.95.40:3333/' + invitee.value?.id).delete()
+    const { data } = await useFetch('https://jlab.my.id/' + invitee.value?.id).delete()
 
     if (data.value) {
       name.value = ''
