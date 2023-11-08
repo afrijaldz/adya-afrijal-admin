@@ -17,7 +17,7 @@ onMounted(() => {
 })
 
 const getList = async () => {
-  const { data } = await useFetch('https://jlab.my.id/')
+  const { data } = await useFetch('https://api-a2.jlab.my.id/')
 
   if (data.value) {
     const invitees = JSON.parse(data.value as string)
@@ -51,7 +51,7 @@ const edit = (ok: any) => {
 
 const editUser = async () => {
   if (name.value) {
-    const { data } = await useFetch('https://jlab.my.id/' + invitee.value?.id)
+    const { data } = await useFetch('https://api-a2.jlab.my.id/' + invitee.value?.id)
       .put({
         name: name.value
       })
@@ -71,7 +71,7 @@ const editUser = async () => {
 const hapusUser = async () => {
   console.log('hapu')
   if (invitee.value?.id) {
-    const { data } = await useFetch('https://jlab.my.id/' + invitee.value?.id).delete()
+    const { data } = await useFetch('https://api-a2.jlab.my.id/' + invitee.value?.id).delete()
 
     if (data.value) {
       name.value = ''
