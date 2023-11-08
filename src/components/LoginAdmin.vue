@@ -7,6 +7,7 @@ const code = ref('')
 const cookies = useCookies(['auth'])
 
 const login = () => {
+  code.value = code.value.trim()
   if (code.value !== 'adyaijalbersatu') {
     start()
     code.value = ''
