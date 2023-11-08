@@ -1,20 +1,39 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useInviteeStore } from '../stores/invitee'
 import { useFetch, useTimeout } from '@vueuse/core'
 
 const inviteStore = useInviteeStore()
 
 const name = ref('')
+const sumbangan = ref('')
+const from = ref('')
+
 const invitee = ref<{
   id: number
   name: string
+  from: string
+  sumbangan: string
 }>()
+
 const loading = ref(false)
+
+const total = computed(() => inviteStore.list.length)
+const ijal = computed(() => inviteStore.list.map(li => li.from).filter(li => li === 'ijal').length)
+const ijalSumbangan = computed(() => inviteStore.list.filter(li => li.from === 'ijal' && li.sumbangan === 'ya').length)
+const adya = computed(() => inviteStore.list.map(li => li.from).filter(li => li === 'adya').length)
+const adyaSumbangan = computed(() => inviteStore.list.filter(li => li.from === 'adya' && li.sumbangan === 'ya').length)
 
 onMounted(() => {
   getList()
 })
+
+const resetForm = () => {
+  name.value = ''
+  sumbangan.value = ''
+  from.value = ''
+  invitee.value = undefined
+}
 
 const getList = async () => {
   const { data } = await useFetch('https://api-a2.jlab.my.id/')
@@ -27,14 +46,16 @@ const getList = async () => {
 
 const addUser = async () => {
   if (name.value) {
-    const { data } = await useFetch('https://jlab.my.id')
+    const { data } = await useFetch('https://api-a2.jlab.my.id')
       .post({
-        name: name.value
+        name: name.value,
+        sumbangan: sumbangan.value,
+        from: from.value
       })
       .json()
 
     if (data.value) {
-      name.value = ''
+      resetForm()
       start()
       getList()
       ;(document.getElementById('my_modal_1') as any).close()
@@ -45,6 +66,8 @@ const { ready: valueValid, start } = useTimeout(1000, { controls: true })
 
 const edit = (ok: any) => {
   name.value = ok.name
+  sumbangan.value = ok.sumbangan
+  from.value = ok.from
   invitee.value = ok
   ;(document.getElementById('my_modal_2') as any).showModal()
 }
@@ -53,16 +76,16 @@ const editUser = async () => {
   if (name.value) {
     const { data } = await useFetch('https://api-a2.jlab.my.id/' + invitee.value?.id)
       .put({
-        name: name.value
+        name: name.value,
+        sumbangan: sumbangan.value,
+        from: from.value
       })
       .json()
 
     if (data.value) {
-      console.log('masukk')
-      name.value = ''
+      resetForm()
       start()
       getList()
-      invitee.value = undefined
       ;(document.getElementById('my_modal_2') as any).close()
     }
   }
@@ -74,10 +97,9 @@ const hapusUser = async () => {
     const { data } = await useFetch('https://api-a2.jlab.my.id/' + invitee.value?.id).delete()
 
     if (data.value) {
-      name.value = ''
       start()
       getList()
-      invitee.value = undefined
+      resetForm()
       ;(document.getElementById('modal_hapus') as any).close()
     }
   }
@@ -98,6 +120,16 @@ const hapus = (ok: any) => {
       <button class="btn btn-sm btn-success" onclick="my_modal_1.showModal()">Tambah data</button>
     </div>
 
+    <div class="flex">
+      <div >
+        <div>total tamu ijal : {{ ijal }} (sumbangan: {{ ijalSumbangan }})</div>
+        <div>total tamu adya : {{ adya }} (sumbangan: {{  adyaSumbangan }})</div>
+      </div>
+    </div>
+    <div>
+      total sumbangan: {{ ijalSumbangan+adyaSumbangan }}
+    </div>
+
     <div class="overflow-x-auto">
       <table class="table">
         <!-- head -->
@@ -107,6 +139,8 @@ const hapus = (ok: any) => {
             <th>Name</th>
             <th>Hash</th>
             <th>Link</th>
+            <th>Tamu dari</th>
+            <th>Sumbangan</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -120,7 +154,13 @@ const hapus = (ok: any) => {
                 {{ `http://adya-afrijal.com/${invitee.hash}` }}
               </a>
             </td>
-            <td>
+            <td :class="[invitee.from === 'adya' ? 'bg-orange-400' : 'bg-emerald-400']">
+              {{ invitee.from }}
+            </td>
+            <td :class="[invitee.sumbangan === 'ya' ? 'bg-green-400' : 'bg-red-400']">
+              {{ invitee.sumbangan }}
+            </td>
+            <td class="w-full">
               <button class="py-2 px-3 bg-primary rounded text-white" @click="edit(invitee)">
                 Edit
               </button>
@@ -134,16 +174,30 @@ const hapus = (ok: any) => {
       </table>
     </div>
   </div>
+
   <dialog id="my_modal_1" class="modal">
     <div class="modal-box">
       <h3 class="font-bold text-lg">Tambah Data</h3>
-      <div class="py-2">
+
+      <div class="mt-2">
         <input
           v-model="name"
           type="text"
           placeholder="Masukkan Nama"
           class="input input-bordered w-full max-w-xs"
         />
+      </div>
+      <div class="mt-2">
+        <select class="select select-bordered w-full max-w-xs" v-model="from">
+          <option value="ijal">ijal</option>
+          <option value="adya">Adya</option>
+        </select>
+      </div>
+      <div class="mt-2">
+        <select class="select select-bordered w-full max-w-xs" v-model="sumbangan">
+          <option value="ya">ya</option>
+          <option value="tidak">Tidak</option>
+        </select>
       </div>
       <div class="modal-action">
         <button :disabled="loading" class="btn btn-primary" @click.stop="addUser">Tambah</button>
@@ -154,6 +208,7 @@ const hapus = (ok: any) => {
       </div>
     </div>
   </dialog>
+
   <dialog id="my_modal_2" class="modal">
     <div class="modal-box">
       <h3 class="font-bold text-lg">Edit Data</h3>
@@ -165,6 +220,18 @@ const hapus = (ok: any) => {
           class="input input-bordered w-full max-w-xs"
         />
       </div>
+      <div class="mt-2">
+        <select class="select select-bordered w-full max-w-xs" v-model="from">
+          <option value="ijal">ijal</option>
+          <option value="adya">Adya</option>
+        </select>
+      </div>
+      <div class="mt-2">
+        <select class="select select-bordered w-full max-w-xs" v-model="sumbangan">
+          <option value="ya">ya</option>
+          <option value="tidak">Tidak</option>
+        </select>
+      </div>
       <div class="modal-action">
         <button :disabled="loading" class="btn btn-primary" @click.stop="editUser">Edit</button>
         <form method="dialog">
@@ -174,6 +241,7 @@ const hapus = (ok: any) => {
       </div>
     </div>
   </dialog>
+
   <dialog id="modal_hapus" class="modal">
     <div class="modal-box">
       <h3 class="font-bold text-lg">Hapus Data</h3>

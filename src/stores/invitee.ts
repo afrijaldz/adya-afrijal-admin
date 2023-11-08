@@ -6,6 +6,8 @@ export const useInviteeStore = defineStore('invitee', () => {
     {
       name: string
       hash: string
+      from: string
+      sumbangan: string
     }[]
   >([])
 
