@@ -36,7 +36,15 @@ const resetForm = () => {
 }
 
 const getList = async () => {
-  const { data } = await useFetch('https://api-a2.jlab.my.id/')
+  const { data, isFetching, isFinished } = await useFetch('https://api-a2.jlab.my.id/')
+
+if (isFetching.value) {
+  loading.value = true
+}
+
+if (isFinished.value) {
+  loading.value = false
+}
 
   if (data.value) {
     const invitees = JSON.parse(data.value as string)
@@ -92,7 +100,6 @@ const editUser = async () => {
 }
 
 const hapusUser = async () => {
-  console.log('hapu')
   if (invitee.value?.id) {
     const { data } = await useFetch('https://api-a2.jlab.my.id/' + invitee.value?.id).delete()
 
@@ -117,7 +124,14 @@ const hapus = (ok: any) => {
   </div>
   <div class="container">
     <div class="my-3">
-      <button class="btn btn-sm btn-success" onclick="my_modal_1.showModal()">Tambah data</button>
+      <button :disabled="loading" class="btn btn-sm btn-success" onclick="my_modal_1.showModal()">
+        <template v-if="loading">
+          Loading...
+        </template>
+        <template v-else>
+          Tambah data
+        </template>
+      </button>
     </div>
 
     <div class="flex">
@@ -154,19 +168,29 @@ const hapus = (ok: any) => {
                 {{ `http://adya-afrijal.com/${invitee.hash}` }}
               </a>
             </td>
-            <td :class="[invitee.from === 'adya' ? 'bg-orange-400' : 'bg-emerald-400']">
+            <td :class="[invitee.from === 'adya' ? 'bg-pink-400' : 'bg-blue-400']">
               {{ invitee.from }}
             </td>
-            <td :class="[invitee.sumbangan === 'ya' ? 'bg-green-400' : 'bg-red-400']">
+            <td :class="[invitee.sumbangan === 'ya' ? 'bg-green-400' : 'bg-yellow-400']">
               {{ invitee.sumbangan }}
             </td>
             <td class="w-full">
-              <button class="py-2 px-3 bg-primary rounded text-white" @click="edit(invitee)">
-                Edit
+              <button :disabled="loading" class="py-2 px-3 bg-primary rounded text-white" @click="edit(invitee)">
+                <template v-if="loading">
+          Loading...
+        </template>
+        <template v-else>
+          Edit
+        </template>
               </button>
               &nbsp;
-              <button class="py-2 px-3 bg-red-400 rounded text-white" @click="hapus(invitee)">
-                Delete
+              <button :disabled="loading" class="py-2 px-3 bg-red-400 rounded text-white" @click="hapus(invitee)">
+                <template v-if="loading">
+          Loading...
+        </template>
+        <template v-else>
+          Delete
+        </template>
               </button>
             </td>
           </tr>
@@ -177,7 +201,13 @@ const hapus = (ok: any) => {
 
   <dialog id="my_modal_1" class="modal">
     <div class="modal-box">
-      <h3 class="font-bold text-lg">Tambah Data</h3>
+      <h3 class="font-bold text-lg">
+        <template v-if="loading">
+          Loading...
+        </template>
+        <template v-else>
+          Tambah data
+        </template></h3>
 
       <div class="mt-2">
         <input
