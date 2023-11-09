@@ -162,7 +162,7 @@ Berikut link undangan kami, untuk info lengkap dari acara dapat mengunjungi:
 
 https://adya-afrijal.com/${ok.hash}
 
-kode undangan: ${ok.hash}
+*kode undangan: ${ok.hash}
 
 Merupakan suatu kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan untuk hadir dan memberikan doa restu.
 
