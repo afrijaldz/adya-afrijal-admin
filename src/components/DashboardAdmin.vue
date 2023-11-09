@@ -3,6 +3,8 @@ import { onMounted, ref } from 'vue'
 import { useInviteeStore } from '../stores/invitee'
 import { useFetch, useTimeout } from '@vueuse/core'
 
+import { useClipboard } from '@vueuse/core'
+
 const inviteStore = useInviteeStore()
 
 const name = ref('')
@@ -11,6 +13,14 @@ const invitee = ref<{
   name: string
 }>()
 const loading = ref(false)
+
+const waText = ref('')
+
+const {
+  copied: textWaCopied,
+  copy: copytextWa,
+  isSupported: copyTextSupported
+} = useClipboard({ source: waText })
 
 onMounted(() => {
   getList()
@@ -87,6 +97,44 @@ const hapus = (ok: any) => {
   invitee.value = ok
   ;(document.getElementById('modal_hapus') as any).showModal()
 }
+
+const copyTextWa = (ok) => {
+  waText.value = `
+Kepada Yth.
+Bapak/Ibu/Saudara/i
+*${ok.name}*
+
+
+Assalamu'alaikum Warahmatullahi Wabarakatuh.
+
+Dengan menghaturkan syukur kehadirat Tuhan YME, perkenankan kami mengundang Bapak/Ibu/Saudara/i, teman sekaligus sahabat, untuk menghadiri acara pernikahan kami.
+
+Adya Restina Prameswari
+&
+Afrijal Dzuhri
+
+Berikut link undangan kami, untuk info lengkap dari acara dapat mengunjungi:
+
+https://adya-afrijal.com/${ok.hash}
+
+Merupakan suatu kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan untuk hadir dan memberikan doa restu.
+
+Mohon maaf perihal undangan hanya di bagikan melalui pesan ini.
+
+Terima kasih atas perhatiannya.
+Wassalamu'alaikum Warahmatullahi Wabarakatuh.
+
+Salam hangat,
+Adya & Afrijal
+Beserta Keluarga
+
+
+
+
+`
+
+  copytextWa(waText.value)
+}
 </script>
 
 <template>
@@ -107,6 +155,7 @@ const hapus = (ok: any) => {
             <th>Name</th>
             <th>Hash</th>
             <th>Link</th>
+            <th>Text WA</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -116,9 +165,14 @@ const hapus = (ok: any) => {
             <td>{{ invitee.name }}</td>
             <td>{{ invitee.hash }}</td>
             <td>
-              <a :href="`http://adya-afrijal.com/${invitee.hash}`">
-                {{ `http://adya-afrijal.com/${invitee.hash}` }}
+              <a :href="`https://adya-afrijal.com/${invitee.hash}`">
+                {{ `https://adya-afrijal.com/${invitee.hash}` }}
               </a>
+            </td>
+            <td>
+              <button class="py-2 px-3 bg-primary rounded text-white" @click="copyTextWa(invitee)">
+                {{ !textWaCopied ? 'Copy Text' : 'Copied' }}
+              </button>
             </td>
             <td>
               <button class="py-2 px-3 bg-primary rounded text-white" @click="edit(invitee)">
@@ -189,4 +243,5 @@ const hapus = (ok: any) => {
       </div>
     </div>
   </dialog>
+  v0.2
 </template>
