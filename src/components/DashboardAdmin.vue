@@ -142,7 +142,7 @@ watch(textWaCopied, (value) => {
   }
 })
 
-const copyTextWa = (ok) => {
+const copyTextWa = (ok: any) => {
   hash.value = ok.hash
   waText.value = `
 Kepada Yth.
