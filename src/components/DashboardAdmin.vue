@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useInviteeStore } from '../stores/invitee'
 import { useFetch, useTimeout } from '@vueuse/core'
+import { withQuery } from 'ufo'
 
 import { useClipboard } from '@vueuse/core'
 
@@ -11,6 +12,7 @@ const name = ref('')
 const sumbangan = ref('')
 const from = ref('')
 const hash = ref('')
+const showFrom = ref('')
 
 const invitee = ref<{
   id: number
@@ -54,8 +56,16 @@ const resetForm = () => {
   invitee.value = undefined
 }
 
-const getList = async () => {
-  const { data, isFetching, isFinished } = await useFetch('https://api-a2.jlab.my.id/')
+const getList = async (from = '') => {
+  const { data, isFetching, isFinished } = await useFetch(
+    withQuery('https://api-a2.jlab.my.id/', { from })
+  )
+
+  if (from) {
+    showFrom.value = from
+  } else {
+    showFrom.value = ''
+  }
 
   if (isFetching.value) {
     loading.value = true
@@ -89,6 +99,7 @@ const addUser = async () => {
     }
   }
 }
+
 const { ready: valueValid, start } = useTimeout(1000, { controls: true })
 
 const edit = (ok: any) => {
@@ -200,6 +211,25 @@ Beserta Keluarga
     </div>
     <div>total sumbangan: {{ ijalSumbangan + adyaSumbangan }}</div>
 
+    <div class="my-4 flex items-center gap-2">
+      <button
+        class="rounded py-1 px-2 ml-2"
+        :class="[showFrom === 'ijal' ? 'border border-green-400 text-green-400' : 'bg-green-400 ']"
+        @click="getList('ijal')"
+      >
+        tampilkan hanya ijal
+      </button>
+      <button
+        class="rounded py-1 px-2 ml-2"
+        :class="[
+          showFrom === 'adya' ? 'border border-purple-400 text-purple-400' : 'bg-purple-400 '
+        ]"
+        @click="getList('adya')"
+      >
+        tampilkan hanya adya
+      </button>
+      <button class="rounded py-1 px-2 ml-2 bg-blue-400" @click="getList()">reset</button>
+    </div>
     <div class="overflow-x-auto">
       <table class="table">
         <!-- head -->
